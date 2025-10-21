@@ -1,0 +1,9 @@
+.idea
+.venv
+test*.py
+Book
+OutPDF
+node_modules
+.env
+custom/*.jpg
+custom/*.png
