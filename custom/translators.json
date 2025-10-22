@@ -1,0 +1,22 @@
+[
+  {
+    "name": "حامد حیدریان",
+    "role": "مترجم",
+    "image": "custom/hamed.png",
+    "email": "hamdhydryan12@gmail.com",
+    "linkedin": "https://www.linkedin.com/in/hamedheydarian",
+    "github": "https://github.com/hheydarian",
+    "telegram": "@Hamedheydarian",
+    "website": "https://hheydarian.github.io/Gitab/"
+  },
+  {
+    "name": "امیر محمد روزمه",
+    "role": "تهیه کننده PDF",
+    "image": "custom/danial.jpg",
+    "email": "amirroox@yahoo.com",
+    "linkedin": "https://www.linkedin.com/in/amirroox",
+    "github": "https://github.com/amirroox",
+    "telegram": "@you_113",
+    "website": "https://amirroox.ir"
+  }
+]
