@@ -32,8 +32,8 @@ YEAR_PUB = os.getenv("YEAR_PUB")
 
 # Config
 LOG_FLAG = os.getenv("LOG_FLAG")
-ASSETS_DIR = os.getenv("ASSETS_DIR")
-CUSTOM_DIR = os.getenv("CUSTOM_DIR")
+ASSETS_DIR = "assets"
+CUSTOM_DIR = "custom"
 BOOK_DIR = os.getenv("BOOK_DIR")
 ASSETS_BOOK_DIR = os.getenv("ASSETS_BOOK_DIR")
 OUTPUT_DIR = os.getenv("OUTPUT_DIR")
