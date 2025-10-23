@@ -1,0 +1,351 @@
+<html>
+<head>
+    <title>{{ book_title }}</title>
+<meta charset="utf-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+
+@page {
+    size: A4;
+    margin: 1cm 1cm 2cm 1cm;
+
+    @bottom-center {
+        content: counter(page);
+        font-family: 'Vazirmatn', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+        font-size: {{ page_counter_font }};
+        color: {{ page_counter_color }};
+    }
+}
+
+@page cover {
+    margin: 0;
+    @bottom-center {
+        content: none;
+    }
+}
+
+@page toc {
+    @bottom-center {
+        content: none;
+    }
+}
+
+body {
+    direction: {{ direction }};
+    text-align: justify;
+    font-family: 'Vazirmatn', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+    font-size: {{ main_font }};
+    line-height: 1.5;
+    color: #222;
+    background-color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+.cover {
+    page: cover;
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    padding: 0;
+    page-break-after: always;
+    overflow: hidden;
+}
+
+.cover-image {
+    width: 100%;
+    height: 100%;
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: cover;
+    margin: 0;
+    padding: 0;
+    display: block;
+}
+
+.info-page {
+    page-break-after: always;
+    text-align: center;
+    padding: 40px;
+}
+
+.info-page h1 {
+    font-size: 30pt;
+    color: {{ color_header }};
+    margin: 40px 0;
+    text-align: left;
+}
+
+.info-page .author {
+    font-size: 18pt;
+    color: #666;
+    margin: 20px 0;
+}
+
+.info-page .author span {
+    color: {{ color_header }};
+}
+
+.info-page .page-count {
+    font-size: 16pt;
+    color: #999;
+    margin-top: 40px;
+}
+
+.toc {
+    page: toc;
+    page-break-after: always;
+    padding: 20px;
+}
+
+.toc h1 {
+    text-align: center;
+    color: {{ color_header }};
+    font-size: 28pt;
+    margin-bottom: 40px;
+}
+
+.toc-item {
+    margin: 15px 0;
+    padding: 10px;
+    border-bottom: 1px dotted #ccc;
+    display: flex;
+    justify-content: space-between;
+    font-size: 13pt;
+}
+
+.toc-item .title {
+    flex: 1;
+}
+
+.toc-item .page-num {
+    margin-left: 20px;
+    color: #666;
+}
+
+.chapter {
+    page-break-before: always;
+}
+
+h1, h2, h3 {
+    color: {{ color_header }};
+    margin-top: 1.4em;
+    text-align: right;
+    page-break-after: avoid;
+}
+
+h1 {
+    font-size: 24pt;
+    border-bottom: 3px solid {{ color_header }};
+    padding-bottom: 10px;
+}
+
+h2 {
+    font-size: 18pt;
+}
+
+h3 {
+    font-size: 14pt;
+}
+
+p {
+    text-align: justify;
+    word-wrap: break-word;
+    margin: 10px 0;
+    text-indent: 20px;
+}
+
+a {
+    color: #1a73e8 !important;
+    text-decoration: underline !important;
+}
+
+a:visited {
+    color: #1a73e8 !important;
+}
+
+a.ltr-link {
+    direction: ltr;
+    display: inline-block;
+    unicode-bidi: embed;
+}
+
+img {
+    display: block;
+    margin: 1.5em auto;
+    max-width: 90%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    page-break-inside: avoid;
+}
+
+code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    color: #c7254e;
+    font-size: 10pt;
+}
+
+pre {
+    background: #2d2d2d;
+    padding: 15px;
+    border-radius: 5px;
+    font-family: Consolas, Monaco, 'Andale Mono', monospace;
+    direction: ltr;
+    text-align: left;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+    border-left: 4px solid {{ color_code }};
+    margin: 20px 0;
+    line-height: 1.5;
+}
+
+pre code {
+    background: transparent;
+    padding: 0;
+    color: #ccc;
+    font-size: 9pt;
+    display: block;
+}
+
+{{ prism_css | safe }}
+
+hr {
+    display: none;
+}
+
+blockquote {
+    border-right: 4px solid {{ color_code }};
+    margin: 1.5em 10px;
+    padding: 10px 20px;
+    background: #fafafa;
+    font-style: italic;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    page-break-inside: avoid;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: right;
+}
+
+th {
+    background-color: {{ color_table }};
+    color: white;
+}
+
+div[align="center"] {
+    text-align: center;
+}
+
+div[align="center"] img {
+    margin-left: auto;
+    margin-right: auto;
+}
+</style>
+</head>
+<body>
+
+<!-- Cover -->
+<div class="cover">
+    {% if cover_image_src %}
+    <img src="{{ cover_image_src }}" class="cover-image" alt="Cover" />
+    {% endif %}
+</div>
+
+<!-- Book Info Page -->
+<div class="info-page">
+    <h1>{{ book_title }}</h1>
+    <div class="author">مترجم: <span>{{ translator }}</span></div>
+    <div class="author">سال ترجمه: <span>{{ year_translate }}</span></div>
+    <div class="author">زبان مبدا: <span>{{ source_lang }}</span> - زبان مقصد: <span>{{ target_lang }}</span></div>
+    <div class="author">شماره ویرایش: <span>{{ rev_number }}</span></div>
+    <div class="author">منبع ترجمه: <span>{{ source }}</span></div>
+    <div class="author">نویسنده: <span>{{ author }}</span></div>
+    <div class="author">انتشارات: <span>{{ publisher }}</span></div>
+    <div class="author">سال انتشار: <span>{{ year_pub }}</span></div>
+    <div class="page-count">تعداد بخش ها: {{ chapter_titles | length }}</div>
+</div>
+
+<!-- Foreword -->
+{% if foreword %}
+<div class="info-page">
+    <h1>پیشگفتار مترجم</h1>
+    <div class="author">{{ foreword }}</div>
+</div>
+{% endif %}
+
+<!-- Translators -->
+{% if translators %}
+<div class="info-page">
+    <h1>ارتباط با ما</h1>
+    {% for translator in translators %}
+    <div style="margin: 20px 0; padding: 15px; border: 2px solid {{ color_header }}; border-radius: 10px; display: flex; align-items: center; gap: 5%;">
+        <div style="flex-shrink: 0;">
+            {% if translator.image %}
+                <img src="{{ translator.image }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
+            {% else %}
+                <img src="{{ default_translator_image }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
+            {% endif %}
+        </div>
+
+        <div style="flex: 1; text-align: right;">
+            {% if translator.name %}
+            <div style="font-size: 16pt; font-weight: bold; margin-bottom: 5px; color: {{ color_header }};">{{ translator.name }}</div>
+            {% endif %}
+
+            {% if translator.role %}
+            <div style="font-size: 12pt; color: #666; margin-bottom: 10px;">{{ translator.role }}</div>
+            {% endif %}
+
+            {% if translator.email %}
+            <div style="font-size: 10pt; margin: 3px 0;">ایمیل: <a href="mailto:{{ translator.email }}">{{ translator.email }}</a></div>
+            {% endif %}
+
+            {% if translator.linkedin %}
+            <div style="font-size: 10pt; margin: 3px 0;">لینکدین: <a href="{{ translator.linkedin }}" class="ltr-link">{{ translator.linkedin }}</a></div>
+            {% endif %}
+
+            {% if translator.github %}
+            <div style="font-size: 10pt; margin: 3px 0;">گیت هاب: <a href="{{ translator.github }}" class="ltr-link">{{ translator.github }}</a></div>
+            {% endif %}
+
+            {% if translator.telegram %}
+            <div style="font-size: 10pt; margin: 3px 0;">تلگرام: <a href="https://t.me/{{ translator.telegram.replace('@', '') }}" class="ltr-link">{{ translator.telegram }}</a></div>
+            {% endif %}
+
+            {% if translator.website %}
+            <div style="font-size: 10pt; margin: 3px 0;">وب‌سایت: <a href="{{ translator.website }}" class="ltr-link">{{ translator.website }}</a></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    <h4 style='text-align: center'>کلیه حقوق این ترجمه محفوظ و تحت حمایت قانون حق تکثیر است.</h4>
+</div>
+{% endif %}
+
+<!-- Table of Contents -->
+<div class="toc">
+    <h1>فهرست مطالب</h1>
+    {% for title in chapter_titles %}
+    <div class="toc-item">
+        <a href="#chapter-{{ loop.index }}" class="title">بخش {{ loop.index }}: {{ title }}</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Chapters -->
+{{ chapters_html | safe }}
+
+</body>
+</html>

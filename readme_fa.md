@@ -31,7 +31,7 @@
 <div dir="ltr"> 
 
 ```bash
-pip install markdown weasyprint beautifulsoup4 python-dotenv
+pip install markdown weasyprint beautifulsoup4 python-dotenv Jinja2
 ```
 
 </div>
@@ -85,7 +85,7 @@ project/
 <div dir="ltr"> 
 
 ```bash
-pip install markdown weasyprint beautifulsoup4 python-dotenv
+pip install markdown weasyprint beautifulsoup4 python-dotenv Jinja2
 npm install
 ```
 
@@ -152,10 +152,13 @@ YEAR_PUB="سال انشتار کتاب (عدد)"
 <div dir="ltr"> 
 
 ```python
-COLOR_HEADER = "#007BA7"    # سر تیترها و عنوانین
-COLOR_CODE = "#007BA7"      # حاشیه بلوک های کد
-COLOR_TABLE = "#007BA7"     # سرتیتر جداول
-MAIN_FONT = "12pt"          # اندازه فونت پایه
+DIRECTION="rtl"                     # راست چین یا چپ چین بودن
+COLOR_HEADER = "#007BA7"            # سر تیترها و عنوانین
+COLOR_CODE = "#007BA7"              # حاشیه بلوک های کد
+COLOR_TABLE = "#007BA7"             # سرتیتر جداول
+MAIN_FONT = "12pt"                  # اندازه فونت پایه
+PAGE_COUNTER_COLOR="#666"           # رنگ شماره گذاری کتاب
+PAGE_COUNTER_FONT="10pt"            # اندازه فونت شماره گذاری
 ```
 
 </div>
@@ -181,9 +184,9 @@ OUTPUT_DIR = "OutPDF"                   # خروجی کتاب
 ```json
 [
   {
-    "name": "دانیال",
-    "role": "مترجم و طراح",
-    "image": "assets/dani.jpg",
+    "name": "Daniel",
+    "role": "Translator and designer",
+    "image": "custom/danial.jpg",
     "email": "amirroox@yahoo.com",
     "linkedin": "https://www.linkedin.com/in/amirroox",
     "github": "https://github.com/amirroox",

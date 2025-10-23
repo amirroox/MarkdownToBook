@@ -2,3 +2,4 @@ markdown
 weasyprint
 beautifulsoup4
 python-dotenv
+jinja2

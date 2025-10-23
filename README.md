@@ -26,7 +26,7 @@ A powerful Python-based tool that converts Markdown files into professionally fo
 
 ### Python Dependencies
 ```bash
-pip install markdown weasyprint beautifulsoup4 python-dotenv
+pip install markdown weasyprint beautifulsoup4 python-dotenv Jinja2
 ```
 
 ### Node.js Dependencies
@@ -66,7 +66,7 @@ project/
 
 1. **Install dependencies:**
    ```bash
-   pip install markdown weasyprint beautifulsoup4 python-dotenv
+   pip install markdown weasyprint beautifulsoup4 python-dotenv Jinja2
    npm install
    ```
 
@@ -113,10 +113,13 @@ YEAR_PUB="Year of Book Publication (Number)"
 
 ### Styling
 ```python
-COLOR_HEADER = "#007BA7"    # Headers and titles
-COLOR_CODE = "#007BA7"      # Code block borders
-COLOR_TABLE = "#007BA7"     # Table headers
-MAIN_FONT = "12pt"          # Base font size
+DIRECTION="rtl"                     # Direction (rtl Or ltr)
+COLOR_HEADER="#007BA7"              # Headers and titles color
+COLOR_CODE="#007BA7"                # Code block borders color
+COLOR_TABLE="#007BA7"               # Table headers color
+MAIN_FONT="12pt"                    # Base font size
+PAGE_COUNTER_COLOR="#666"           # counter page color
+PAGE_COUNTER_FONT="10pt"            # counter page font size
 ```
 
 ### Paths
@@ -133,9 +136,9 @@ Create `custom/translators.json`:
 ```json
 [
   {
-    "name": "دانیال",
-    "role": "مترجم و طراح",
-    "image": "assets/dani.jpg",
+    "name": "Daniel",
+    "role": "Translator and designer",
+    "image": "custom/danial.jpg",
     "email": "amirroox@yahoo.com",
     "linkedin": "https://www.linkedin.com/in/amirroox",
     "github": "https://github.com/amirroox",
@@ -336,6 +339,7 @@ Contributions welcome! Areas for improvement:
 - **PDF Generation:** [WeasyPrint](https://weasyprint.org/)
 - **Syntax Highlighting:** [Prism.js](https://prismjs.com/)
 - **HTML Parsing:** [Beautiful Soup](https://www.crummy.com/software/BeautifulSoup/)
+- **Templating Engine:** [Jinja](https://jinja.palletsprojects.com/en/stable/)
 
 ## 📞 Support
 
