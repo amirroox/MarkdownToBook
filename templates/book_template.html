@@ -1,351 +1,595 @@
 <html>
 <head>
     <title>{{ book_title }}</title>
-<meta charset="utf-8">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+    <meta charset="utf-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
 
-@page {
-    size: A4;
-    margin: 1cm 1cm 2cm 1cm;
+        /* Page Setup */
+        @page {
+            {% if theme == 'dark' %}
+            background: #1d1d1d !important;
+            {% elif theme == 'colorful' %}
+            background-color: {{ bg_color }} !important;
+            {% elif theme == 'light' %}
+            background-color: #ffffff !important;
+            {% endif %}
+            size: A4;
+            margin: 1.5cm 1cm 2.5cm 1cm;
 
-    @bottom-center {
-        content: counter(page);
-        font-family: 'Vazirmatn', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
-        font-size: {{ page_counter_font }};
-        color: {{ page_counter_color }};
-    }
-}
+            /* Watermark in background */
+            {% if watermark_enabled %}
+            background: url('{{ watermark_src }}') center center / contain no-repeat;
+            {% endif %}
 
-@page cover {
-    margin: 0;
-    @bottom-center {
-        content: none;
-    }
-}
+            /* Header */
+            {% if enable_header %}
+            @top-center {
+                content: string(chapter-title);
+                font-family: 'Vazirmatn', sans-serif;
+                font-size: 10pt;
+                color: {{ color_header }};
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+                margin-bottom: 10px;
+            }
+            {% endif %}
 
-@page toc {
-    @bottom-center {
-        content: none;
-    }
-}
+            /* Footer */
+            {% if enable_footer %}
+            @bottom-left {
+                content: "{{ footer_text }}";
+                font-family: 'Vazirmatn', sans-serif;
+                font-size: 9pt;
+                color: {{ page_counter_color }};
+            }
+            {% endif %}
 
-body {
-    direction: {{ direction }};
-    text-align: justify;
-    font-family: 'Vazirmatn', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
-    font-size: {{ main_font }};
-    line-height: 1.5;
-    color: #222;
-    background-color: #fff;
-    margin: 0;
-    padding: 0;
-}
+            /* Page Counter */
+            @bottom-center {
+                content: counter(page);
+                font-family: 'Vazirmatn', 'Segoe UI Emoji', sans-serif;
+                font-size: {{ page_counter_font }};
+                color: {{ page_counter_color }};
+            }
+        }
 
-.cover {
-    page: cover;
-    width: 210mm;
-    height: 297mm;
-    margin: 0;
-    padding: 0;
-    page-break-after: always;
-    overflow: hidden;
-}
+        /* Cover Page */
+        @page cover {
+            margin: 0;
+            {% if watermark_enabled %}
+            background: none;
+            {% endif %}
+            @top-center { content: none; }
+            @bottom-center { content: none; }
+            @bottom-left { content: none; }
+        }
 
-.cover-image {
-    width: 100%;
-    height: 100%;
-    min-width: 100%;
-    min-height: 100%;
-    object-fit: cover;
-    margin: 0;
-    padding: 0;
-    display: block;
-}
+        /* Table of Contents Page */
+        @page toc {
+            {% if watermark_enabled %}
+            background: none;
+            {% endif %}
+            @bottom-center { content: none; }
+        }
 
-.info-page {
-    page-break-after: always;
-    text-align: center;
-    padding: 40px;
-}
+        /* Info Pages */
+        @page info {
+            {% if watermark_enabled %}
+            background: none;
+            {% endif %}
+            @bottom-center { content: none; }
+        }
 
-.info-page h1 {
-    font-size: 30pt;
-    color: {{ color_header }};
-    margin: 40px 0;
-    text-align: left;
-}
+        /* Base Styling */
+        * {
+            margin: 0;
+            padding: 0;
+        }
 
-.info-page .author {
-    font-size: 18pt;
-    color: #666;
-    margin: 20px 0;
-}
+        body {
+            direction: {{ direction }};
+            text-align: justify;
+            font-family: 'Vazirmatn', 'Segoe UI Emoji', 'Noto Color Emoji', 'Apple Color Emoji', sans-serif;
+            font-size: {{ main_font }};
+            line-height: 1.6;
+            color: {{ text_color }};
+            background-color: {{ bg_color }};
+        }
 
-.info-page .author span {
-    color: {{ color_header }};
-}
+        /* Cover Page */
+        .cover {
+            page: cover;
+            width: 210mm;
+            height: 297mm;
+            margin: 0;
+            padding: 0;
+            page-break-after: always;
+            overflow: hidden;
+        }
 
-.info-page .page-count {
-    font-size: 16pt;
-    color: #999;
-    margin-top: 40px;
-}
+        .cover-image {
+            width: 100%;
+            height: 100%;
+            min-width: 100%;
+            min-height: 100%;
+            object-fit: cover;
+            margin: 0;
+            padding: 0;
+            display: block;
+        }
 
-.toc {
-    page: toc;
-    page-break-after: always;
-    padding: 20px;
-}
+        /* Info Pages */
+        .info-page {
+            page: info;
+            page-break-after: always;
+            text-align: center;
+            padding: 40px;
+            color: {{ text_color }};
+        }
 
-.toc h1 {
-    text-align: center;
-    color: {{ color_header }};
-    font-size: 28pt;
-    margin-bottom: 40px;
-}
+        .info-page h1 {
+            font-size: 30pt;
+            color: {{ color_header }};
+            margin: 40px 0;
+            text-align: {% if direction == 'rtl' %}right{% else %}left{% endif %};
+            page-break-after: avoid;
+        }
 
-.toc-item {
-    margin: 15px 0;
-    padding: 10px;
-    border-bottom: 1px dotted #ccc;
-    display: flex;
-    justify-content: space-between;
-    font-size: 13pt;
-}
+        .info-page .author {
+            font-size: 16pt;
+            color: {{ text_color }};
+            margin: 15px 0;
+            text-align: {% if direction == 'rtl' %}right{% else %}left{% endif %};
+        }
 
-.toc-item .title {
-    flex: 1;
-}
+        .info-page .author span {
+            color: {{ color_header }};
+            font-weight: bold;
+        }
 
-.toc-item .page-num {
-    margin-left: 20px;
-    color: #666;
-}
+        .info-page .page-count {
+            font-size: 14pt;
+            color: {{ page_counter_color }};
+            margin-top: 40px;
+        }
 
-.chapter {
-    page-break-before: always;
-}
+        /* Table of Contents */
+        .toc {
+            page: toc;
+            page-break-after: always;
+            padding: 20px;
+            color: {{ text_color }};
+        }
 
-h1, h2, h3 {
-    color: {{ color_header }};
-    margin-top: 1.4em;
-    text-align: right;
-    page-break-after: avoid;
-}
+        .toc h1 {
+            text-align: center;
+            color: {{ color_header }};
+            font-size: 28pt;
+            margin-bottom: 40px;
+            page-break-after: avoid;
+        }
 
-h1 {
-    font-size: 24pt;
-    border-bottom: 3px solid {{ color_header }};
-    padding-bottom: 10px;
-}
+        .toc-item {
+            margin: 12px 0;
+            padding: 8px;
+            border-bottom: 1px dotted #ccc;
+            display: flex;
+            justify-content: space-between;
+            font-size: 12pt;
+            color: {{ text_color }};
+        }
 
-h2 {
-    font-size: 18pt;
-}
+        .toc-item .title {
+            flex: 1;
+            color: {{ link_color }};
+        }
 
-h3 {
-    font-size: 14pt;
-}
+        .toc-item .page-num {
+            margin-left: 20px;
+            color: {{ page_counter_color }};
+            flex-shrink: 0;
+        }
 
-p {
-    text-align: justify;
-    word-wrap: break-word;
-    margin: 10px 0;
-    text-indent: 20px;
-}
+        /* Chapter Styling */
+        .chapter {
+            page-break-before: always;
+        }
 
-a {
-    color: #1a73e8 !important;
-    text-decoration: underline !important;
-}
+        .chapter h1 {
+            string-set: chapter-title content();
+        }
 
-a:visited {
-    color: #1a73e8 !important;
-}
+        /* Headings */
+        h1, h2, h3, h4, h5, h6 {
+            color: {{ color_header }};
+            margin-top: 1.4em;
+            margin-bottom: 0.8em;
+            text-align: {% if direction == 'rtl' %}right{% else %}left{% endif %};
+            page-break-after: avoid;
+            font-weight: 700;
+        }
 
-a.ltr-link {
-    direction: ltr;
-    display: inline-block;
-    unicode-bidi: embed;
-}
+        h1 {
+            font-size: 24pt;
+            border-bottom: 3px solid {{ color_header }};
+            padding-bottom: 10px;
+        }
 
-img {
-    display: block;
-    margin: 1.5em auto;
-    max-width: 90%;
-    height: auto;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    page-break-inside: avoid;
-}
+        h2 {
+            font-size: 18pt;
+            border-left: 4px solid {{ color_header }};
+            padding-left: 10px;
+        }
 
-code {
-    background: #f4f4f4;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: Consolas, Monaco, 'Andale Mono', monospace;
-    color: #c7254e;
-    font-size: 10pt;
-}
+        h3 {
+            font-size: 14pt;
+        }
 
-pre {
-    background: #2d2d2d;
-    padding: 15px;
-    border-radius: 5px;
-    font-family: Consolas, Monaco, 'Andale Mono', monospace;
-    direction: ltr;
-    text-align: left;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    page-break-inside: avoid;
-    border-left: 4px solid {{ color_code }};
-    margin: 20px 0;
-    line-height: 1.5;
-}
+        /* Paragraphs */
+        p {
+            text-align: justify;
+            word-wrap: break-word;
+            margin: 10px 0;
+            text-indent: 20px;
+            color: {{ text_color }};
+            line-height: 1.8;
+        }
 
-pre code {
-    background: transparent;
-    padding: 0;
-    color: #ccc;
-    font-size: 9pt;
-    display: block;
-}
+        /* Links */
+        a {
+            color: {{ link_color }} !important;
+            text-decoration: underline !important;
+            word-wrap: break-word;
+        }
 
-{{ prism_css | safe }}
+        a:visited {
+            color: {{ link_color }} !important;
+        }
 
-hr {
-    display: none;
-}
+        a.ltr-link {
+            direction: ltr;
+            display: inline-block;
+            unicode-bidi: embed;
+        }
 
-blockquote {
-    border-right: 4px solid {{ color_code }};
-    margin: 1.5em 10px;
-    padding: 10px 20px;
-    background: #fafafa;
-    font-style: italic;
-}
+        /* Images */
+        img {
+            display: block;
+            margin: 1.5em auto;
+            max-width: 85%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            page-break-inside: avoid;
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    page-break-inside: avoid;
-}
+        /* Code Styling */
+        code {
+            background: rgba(0, 123, 167, 0.1);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            color: {{ color_code }};
+            font-size: 10pt;
+            direction: ltr;
+            display: inline-block;
+            unicode-bidi: embed;
+        }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: right;
-}
+        pre {
+            background: #2d2d2d;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', Consolas, Monaco, monospace;
+            direction: ltr;
+            text-align: left;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            page-break-inside: avoid;
+            border-left: 4px solid {{ color_code }};
+            margin: 20px 0;
+            line-height: 1.5;
+        }
 
-th {
-    background-color: {{ color_table }};
-    color: white;
-}
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: #ccc;
+            font-size: 9pt;
+            display: block;
+            border: none;
+        }
 
-div[align="center"] {
-    text-align: center;
-}
+        {{ prism_css | safe }}
 
-div[align="center"] img {
-    margin-left: auto;
-    margin-right: auto;
-}
-</style>
+        /* Horizontal Rule */
+        hr {
+            border: none;
+            border-top: 2px solid {{ color_header }};
+            margin: 2em 0;
+            page-break-inside: avoid;
+        }
+
+        /* Blockquote */
+        blockquote {
+            border-right: 4px solid {{ color_code }};
+            margin: 1.5em 10px;
+            padding: 15px 20px;
+            background: rgba(0, 123, 167, 0.05);
+            font-style: italic;
+            color: {{ text_color }};
+            page-break-inside: avoid;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            page-break-inside: avoid;
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+            color: {{ text_color }};
+        }
+
+        th {
+            background-color: {{ color_table }};
+            color: #fff;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        /* Centered Content */
+        div[align="center"] {
+            text-align: center;
+        }
+
+        div[align="center"] img {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin: 1em 2em;
+            color: {{ text_color }};
+        }
+
+        li {
+            margin: 0.5em 0;
+            line-height: 1.8;
+        }
+
+        /* Translator Profile Card */
+        .translator-card {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid {{ color_header }};
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5%;
+            page-break-inside: avoid;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .translator-image {
+            flex-shrink: 0;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid {{ color_header }};
+        }
+
+        .translator-info {
+            flex: 1;
+            text-align: {% if direction == 'rtl' %}right{% else %}left{% endif %};
+        }
+
+        .translator-name {
+            font-size: 16pt;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: {{ color_header }};
+        }
+
+        .translator-role {
+            font-size: 12pt;
+            color: {{ page_counter_color }};
+            margin-bottom: 10px;
+        }
+
+        .translator-contact {
+            font-size: 10pt;
+            margin: 3px 0;
+            color: {{ text_color }};
+        }
+
+        .translator-contact a {
+            color: {{ link_color }};
+            text-decoration: none;
+        }
+
+        .translator-contact a:hover {
+            text-decoration: underline;
+        }
+
+        /* Copyright Notice */
+        .copyright-notice {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 2px solid {{ color_header }};
+            color: {{ page_counter_color }};
+            font-size: 10pt;
+            font-weight: bold;
+            page-break-inside: avoid;
+        }
+
+        /* Foreword Section */
+        .foreword-section {
+            text-align: justify;
+            color: {{ text_color }};
+            line-height: 1.8;
+        }
+
+        /* Responsive for different themes */
+        {% if theme == 'dark' %}
+        body {
+            /*background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%);*/
+            background: #1d1d1d;
+        }
+        code {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        blockquote {
+            background: rgba(0, 212, 255, 0.05);
+            border-right-color: #00d4ff;
+        }
+        pre {
+            background: #0a0a0a;
+            border-left-color: #00d4ff;
+        }
+        th {
+            color: #00d4ff
+        }
+        {% elif theme == 'colorful' %}
+        h1, h2, h3 {
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        blockquote {
+            background: linear-gradient(90deg, rgba(255, 107, 0, 0.05), rgba(233, 30, 99, 0.05));
+        }
+        th {
+            color: orange;
+        }
+        {% elif theme == 'light' %}
+        body {
+            background: #ffffff;
+        }
+        blockquote {
+            background: #f9f9f9;
+        }
+        th {
+            color: blue
+        }
+        {% endif %}
+    </style>
 </head>
 <body>
 
-<!-- Cover -->
-<div class="cover">
-    {% if cover_image_src %}
-    <img src="{{ cover_image_src }}" class="cover-image" alt="Cover" />
+    <!-- Cover Page -->
+    <div class="cover">
+        {% if cover_image_src %}
+        <img src="{{ cover_image_src }}" class="cover-image" alt="Book Cover" />
+        {% endif %}
+    </div>
+
+    <!-- Book Information Page -->
+    <div class="info-page">
+        <h1 style="text-align: center">{{ book_title }}</h1>
+        <div class="author">مترجم: <span>{{ translator }}</span></div>
+        <div class="author">سال ترجمه: <span>{{ year_translate }}</span></div>
+        <div class="author">زبان مبدا: <span>{{ source_lang }}</span> - زبان مقصد: <span>{{ target_lang }}</span></div>
+        <div class="author">شماره ویرایش: <span>{{ rev_number }}</span></div>
+        <div class="author">منبع ترجمه: <span>{{ source }}</span></div>
+        <div class="author">نویسنده: <span>{{ author }}</span></div>
+        <div class="author">انتشارات: <span>{{ publisher }}</span></div>
+        <div class="author">سال انتشار: <span>{{ year_pub }}</span></div>
+        <div class="page-count">تعداد بخش ها: {{ chapter_titles | length }}</div>
+    </div>
+
+    <!-- Foreword Section -->
+    {% if foreword %}
+    <div class="info-page">
+        <h1>پیشگفتار مترجم</h1>
+        <div class="foreword-section">{{ foreword }}</div>
+    </div>
     {% endif %}
-</div>
 
-<!-- Book Info Page -->
-<div class="info-page">
-    <h1>{{ book_title }}</h1>
-    <div class="author">مترجم: <span>{{ translator }}</span></div>
-    <div class="author">سال ترجمه: <span>{{ year_translate }}</span></div>
-    <div class="author">زبان مبدا: <span>{{ source_lang }}</span> - زبان مقصد: <span>{{ target_lang }}</span></div>
-    <div class="author">شماره ویرایش: <span>{{ rev_number }}</span></div>
-    <div class="author">منبع ترجمه: <span>{{ source }}</span></div>
-    <div class="author">نویسنده: <span>{{ author }}</span></div>
-    <div class="author">انتشارات: <span>{{ publisher }}</span></div>
-    <div class="author">سال انتشار: <span>{{ year_pub }}</span></div>
-    <div class="page-count">تعداد بخش ها: {{ chapter_titles | length }}</div>
-</div>
+    <!-- Translators Contact Page -->
+    {% if translators %}
+    <div class="info-page">
+        <h1>ارتباط با ما</h1>
+        {% for translator in translators %}
+        <div class="translator-card">
+            <div>
+                {% if translator.image %}
+                    <img src="{{ translator.image }}" class="translator-image" alt="{{ translator.name }}" />
+                {% else %}
+                    <img src="{{ default_translator_image }}" class="translator-image" alt="Default Avatar" />
+                {% endif %}
+            </div>
 
-<!-- Foreword -->
-{% if foreword %}
-<div class="info-page">
-    <h1>پیشگفتار مترجم</h1>
-    <div class="author">{{ foreword }}</div>
-</div>
-{% endif %}
+            <div class="translator-info">
+                {% if translator.name %}
+                <div class="translator-name">{{ translator.name }}</div>
+                {% endif %}
 
-<!-- Translators -->
-{% if translators %}
-<div class="info-page">
-    <h1>ارتباط با ما</h1>
-    {% for translator in translators %}
-    <div style="margin: 20px 0; padding: 15px; border: 2px solid {{ color_header }}; border-radius: 10px; display: flex; align-items: center; gap: 5%;">
-        <div style="flex-shrink: 0;">
-            {% if translator.image %}
-                <img src="{{ translator.image }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
-            {% else %}
-                <img src="{{ default_translator_image }}" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;" />
-            {% endif %}
+                {% if translator.role %}
+                <div class="translator-role">{{ translator.role }}</div>
+                {% endif %}
+
+                {% if translator.email %}
+                <div class="translator-contact">
+                    ایمیل: <a href="mailto:{{ translator.email }}">{{ translator.email }}</a>
+                </div>
+                {% endif %}
+
+                {% if translator.linkedin %}
+                <div class="translator-contact">
+                    لینکدین: <a href="{{ translator.linkedin }}" class="ltr-link">{{ translator.linkedin }}</a>
+                </div>
+                {% endif %}
+
+                {% if translator.github %}
+                <div class="translator-contact">
+                    گیت هاب: <a href="{{ translator.github }}" class="ltr-link">{{ translator.github }}</a>
+                </div>
+                {% endif %}
+
+                {% if translator.telegram %}
+                <div class="translator-contact">
+                    تلگرام: <a href="https://t.me/{{ translator.telegram.replace('@', '') }}" class="ltr-link">{{ translator.telegram }}</a>
+                </div>
+                {% endif %}
+
+                {% if translator.website %}
+                <div class="translator-contact">
+                    وب ‌سایت: <a href="{{ translator.website }}" class="ltr-link">{{ translator.website }}</a>
+                </div>
+                {% endif %}
+            </div>
         </div>
+        {% endfor %}
+        <div class="copyright-notice">کلیه حقوق این ترجمه محفوظ و تحت حمایت قانون حق تکثیر است.</div>
+    </div>
+    {% endif %}
 
-        <div style="flex: 1; text-align: right;">
-            {% if translator.name %}
-            <div style="font-size: 16pt; font-weight: bold; margin-bottom: 5px; color: {{ color_header }};">{{ translator.name }}</div>
-            {% endif %}
-
-            {% if translator.role %}
-            <div style="font-size: 12pt; color: #666; margin-bottom: 10px;">{{ translator.role }}</div>
-            {% endif %}
-
-            {% if translator.email %}
-            <div style="font-size: 10pt; margin: 3px 0;">ایمیل: <a href="mailto:{{ translator.email }}">{{ translator.email }}</a></div>
-            {% endif %}
-
-            {% if translator.linkedin %}
-            <div style="font-size: 10pt; margin: 3px 0;">لینکدین: <a href="{{ translator.linkedin }}" class="ltr-link">{{ translator.linkedin }}</a></div>
-            {% endif %}
-
-            {% if translator.github %}
-            <div style="font-size: 10pt; margin: 3px 0;">گیت هاب: <a href="{{ translator.github }}" class="ltr-link">{{ translator.github }}</a></div>
-            {% endif %}
-
-            {% if translator.telegram %}
-            <div style="font-size: 10pt; margin: 3px 0;">تلگرام: <a href="https://t.me/{{ translator.telegram.replace('@', '') }}" class="ltr-link">{{ translator.telegram }}</a></div>
-            {% endif %}
-
-            {% if translator.website %}
-            <div style="font-size: 10pt; margin: 3px 0;">وب‌سایت: <a href="{{ translator.website }}" class="ltr-link">{{ translator.website }}</a></div>
-            {% endif %}
+    <!-- Table of Contents -->
+    <div class="toc">
+        <h1>فهرست مطالب</h1>
+        {% for title in chapter_titles %}
+        <div class="toc-item">
+            <a href="#chapter-{{ loop.index }}" class="title">{{ loop.index }} - {{ title }}</a>
+            <span class="page-num"></span>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-    <h4 style='text-align: center'>کلیه حقوق این ترجمه محفوظ و تحت حمایت قانون حق تکثیر است.</h4>
-</div>
-{% endif %}
 
-<!-- Table of Contents -->
-<div class="toc">
-    <h1>فهرست مطالب</h1>
-    {% for title in chapter_titles %}
-    <div class="toc-item">
-        <a href="#chapter-{{ loop.index }}" class="title">بخش {{ loop.index }}: {{ title }}</a>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- Chapters -->
-{{ chapters_html | safe }}
+    <!-- Chapters Content -->
+    {{ chapters_html | safe }}
 
 </body>
 </html>

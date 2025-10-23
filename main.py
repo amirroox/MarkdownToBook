@@ -39,9 +39,16 @@ OUTPUT_DIR = os.getenv("OUTPUT_DIR")
 NAME_OUTPUT = BOOK_TITLE
 OUTPUT_FILE = os.path.join(OUTPUT_DIR, f"{NAME_OUTPUT}.pdf")
 
+# Theme & Styling
+THEME = os.getenv("THEME", "custom").lower()  # custom, dark, light, colorful
+ENABLE_WATERMARK = os.getenv("ENABLE_WATERMARK", "False").lower() == "true"  # TODO Fix
+ENABLE_HEADER = os.getenv("ENABLE_HEADER", "False").lower() == "true"
+ENABLE_FOOTER = os.getenv("ENABLE_FOOTER", "False").lower() == "true"
+FOOTER_TEXT = os.getenv("FOOTER_TEXT", "All rights reserved")
+
 # Foreword
 FOREWORD = ""
-if not FOREWORD:
+if os.path.exists(f'./{CUSTOM_DIR}/Foreword.txt'):
     with open(f'./{CUSTOM_DIR}/Foreword.txt', 'r', encoding='UTF-8') as file:
         FOREWORD = file.read()
 
@@ -56,7 +63,6 @@ if os.path.exists(f'{CUSTOM_DIR}/translators.json'):
 for translator in TRANSLATORS:
     if 'image' in translator:
         img_path = translator['image']
-
         if not img_path.startswith(('http://', 'https://')):
             if os.path.exists(img_path):
                 if os.name == 'nt':
@@ -80,14 +86,68 @@ if os.path.exists(DEFAULT_TRANSLATOR_IMAGE):
     else:
         DEFAULT_TRANSLATOR_IMAGE = 'file://' + pathname2url(os.path.abspath(DEFAULT_TRANSLATOR_IMAGE))
 
-# Style
-DIRECTION = "ltr" if os.getenv("DIRECTION").lower() != "rtl" else "rtl"
-COLOR_HEADER = os.getenv("COLOR_HEADER")
-COLOR_CODE = os.getenv("COLOR_CODE")
-COLOR_TABLE = os.getenv("COLOR_TABLE")
-MAIN_FONT = os.getenv("MAIN_FONT")
-PAGE_COUNTER_COLOR = os.getenv("PAGE_COUNTER_COLOR")
-PAGE_COUNTER_FONT = os.getenv("PAGE_COUNTER_FONT")
+# Style Configuration
+DIRECTION = "ltr" if os.getenv("DIRECTION", "rtl").lower() != "rtl" else "rtl"
+COLOR_HEADER = os.getenv("COLOR_HEADER", "#007BA7")
+COLOR_CODE = os.getenv("COLOR_CODE", "#007BA7")
+COLOR_TABLE = os.getenv("COLOR_TABLE", "#007BA7")
+COLOR_BACK_GROUND = os.getenv("COLOR_BACK_GROUND", "#fff")
+COLOR_TEXT = os.getenv("COLOR_TEXT", "#222")
+COLOR_LINK = os.getenv("COLOR_LINK", "#1a73e8")
+MAIN_FONT = os.getenv("MAIN_FONT", "12pt")
+PAGE_COUNTER_COLOR = os.getenv("PAGE_COUNTER_COLOR", "#666")
+PAGE_COUNTER_FONT = os.getenv("PAGE_COUNTER_FONT", "10pt")
+
+# Theme Configuration
+THEMES = {
+    "dark": {
+        "bg_color": "#1e1e1e",
+        "text_color": "#e0e0e0",
+        "header_color": "#00d4ff",
+        "code_color": "#00d4ff",
+        "table_color": "#1a1a1a",
+        "link_color": "#64b5f6"
+    },
+    "light": {
+        "bg_color": "#ffffff",
+        "text_color": "#222222",
+        "header_color": "#0066cc",
+        "code_color": "#0066cc",
+        "table_color": "#f5f5f5",
+        "link_color": "#1a73e8"
+    },
+    "colorful": {
+        "bg_color": "#fafafa",
+        "text_color": "#1a1a1a",
+        "header_color": "#e91e63",
+        "code_color": "#ff6f00",
+        "table_color": "#e8eaf6",
+        "link_color": "#d32f2f"
+    },
+    "custom": {
+        "bg_color": COLOR_BACK_GROUND,
+        "text_color": COLOR_TEXT,
+        "header_color": COLOR_HEADER,
+        "code_color": COLOR_CODE,
+        "table_color": COLOR_TABLE,
+        "link_color": COLOR_LINK
+    }
+}
+
+# Get current theme
+current_theme = THEMES.get(THEME, THEMES["custom"])
+
+# Watermark Configuration
+watermark_path = f"{CUSTOM_DIR}/watermark.png"
+watermark_enabled = ENABLE_WATERMARK and os.path.exists(watermark_path)
+
+if watermark_enabled:
+    if os.name == 'nt':
+        watermark_uri = 'file:///' + os.path.abspath(watermark_path).replace('\\', '/')
+    else:
+        watermark_uri = 'file://' + pathname2url(os.path.abspath(watermark_path))
+else:
+    watermark_uri = None
 
 # Assets
 PRISM_CSS_PATH = f"{ASSETS_DIR}/prism.css"
@@ -102,6 +162,10 @@ if not PROJECT_ROOT:
 print(f"Project Root: {PROJECT_ROOT}")
 print(f"Book Directory: {os.path.abspath(BOOK_DIR)}")
 print(f"Assets Directory: {os.path.abspath(ASSETS_BOOK_DIR)}")
+print(f"Theme: {THEME}")
+print(f"Watermark Enabled: {watermark_enabled}")
+print(f"Header Enabled: {ENABLE_HEADER}")
+print(f"Footer Enabled: {ENABLE_FOOTER}")
 
 # Cover image
 cover_image_path = f"{ASSETS_DIR}/cover.jpg"
@@ -130,11 +194,10 @@ elif os.path.exists(PRISM_DEFAULT_PATH):
     with open(PRISM_DEFAULT_PATH, "r", encoding="utf-8") as f:
         prism_css = f.read()
     print(f"Loaded Prism CSS from: {PRISM_DEFAULT_PATH}")
-else:
-    print(f"Prism CSS not found, using fallback")
 
 
 def format_seconds(s: float) -> str:
+    """Convert seconds to HH:MM:SS.mmm format"""
     hrs, rem = divmod(int(s), 3600)
     mins, secs = divmod(rem, 60)
     millis = int((s - int(s)) * 1000)
@@ -142,11 +205,13 @@ def format_seconds(s: float) -> str:
 
 
 def contains_persian(text):
+    """Check if text contains Persian characters"""
     persian_pattern = re.compile(r'[\u0600-\u06FF]')
     return bool(persian_pattern.search(text))
 
 
 def preprocess_markdown(markdown_text):
+    """Preprocess markdown to handle images in divs"""
     pattern_h = r'(<div[^>]*>)\s*!\[([^\]]*)\]\(([^\)]+)\)\s*(</div>)'
 
     def replace_img(match):
@@ -160,6 +225,7 @@ def preprocess_markdown(markdown_text):
 
 
 def normalize_language(lang):
+    """Normalize programming language names"""
     aliases = {
         'c#': 'csharp', 'cs': 'csharp', 'js': 'javascript',
         'ts': 'typescript', 'py': 'python', 'sh': 'bash',
@@ -172,6 +238,7 @@ def normalize_language(lang):
 
 
 def detect_language(code_text):
+    """Detect programming language from code content"""
     if any(keyword in code_text for keyword in ["def ", "import ", "class ", "print("]):
         return "python"
     elif any(keyword in code_text for keyword in ["function ", "const ", "let ", "var ", "=>"]):
@@ -189,6 +256,7 @@ def detect_language(code_text):
 
 
 def highlight_with_node(code, language=None):
+    """Highlight code using Node.js and Prism"""
     if not os.path.exists(NODE_HIGHLIGHTER):
         return None
     try:
@@ -205,8 +273,9 @@ def highlight_with_node(code, language=None):
     return None
 
 
-def apply_prism_highlighting(HTML_content):
-    soup_1 = BeautifulSoup(HTML_content, "html.parser")
+def apply_prism_highlighting(_html_content):
+    """Apply syntax highlighting to code blocks"""
+    soup_1 = BeautifulSoup(_html_content, "html.parser")
     for pre in soup_1.find_all("pre"):
         code = pre.find("code")
         if code:
@@ -298,8 +367,7 @@ for i, md_path in enumerate(chapters):
             print(f"Trying: {img_path}")
 
         if os.path.exists(img_path):
-            file_uri = 'file:///' + img_path.replace('\\', '/') if os.name == 'nt' else 'file://' + pathname2url(
-                img_path)
+            file_uri = 'file:///' + img_path.replace('\\', '/') if os.name == 'nt' else 'file://' + pathname2url(img_path)
             img["src"] = file_uri
             if LOG_FLAG:
                 print(f"Found!")
@@ -316,7 +384,8 @@ for i, md_path in enumerate(chapters):
     html_body = str(soup)
     html_body = apply_prism_highlighting(html_body)
     anchor_id = f"chapter-{i + 1}"
-    chapters_html += f"<div class='chapter' id='{anchor_id}'>{html_body}</div>"
+    chapter_number = i + 1
+    chapters_html += f"<div class='chapter' id='{anchor_id}' data-chapter-num='{chapter_number}'>{html_body}</div>"
 
 # Setup Jinja2
 env = Environment(loader=FileSystemLoader('templates'))
@@ -333,9 +402,9 @@ html_content = template.render(
     source=SOURCE,
     year_pub=YEAR_PUB,
     direction=DIRECTION,
-    color_header=COLOR_HEADER,
-    color_code=COLOR_CODE,
-    color_table=COLOR_TABLE,
+    color_header=current_theme["header_color"],
+    color_code=current_theme["code_color"],
+    color_table=current_theme["table_color"],
     main_font=MAIN_FONT,
     page_counter_font=PAGE_COUNTER_FONT,
     page_counter_color=PAGE_COUNTER_COLOR,
@@ -345,7 +414,17 @@ html_content = template.render(
     chapters_html=chapters_html,
     translators=TRANSLATORS,
     default_translator_image=DEFAULT_TRANSLATOR_IMAGE,
-    foreword=FOREWORD
+    foreword=FOREWORD,
+    theme=THEME,
+    theme_colors=current_theme,
+    watermark_enabled=watermark_enabled,
+    watermark_src=watermark_uri,
+    enable_header=ENABLE_HEADER,
+    enable_footer=ENABLE_FOOTER,
+    footer_text=FOOTER_TEXT,
+    bg_color=current_theme["bg_color"],
+    text_color=current_theme["text_color"],
+    link_color=current_theme["link_color"]
 )
 
 # Save debug HTML

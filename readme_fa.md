@@ -158,9 +158,39 @@ DIRECTION="rtl"                     # راست چین یا چپ چین بودن
 COLOR_HEADER = "#007BA7"            # سر تیترها و عنوانین
 COLOR_CODE = "#007BA7"              # حاشیه بلوک های کد
 COLOR_TABLE = "#007BA7"             # سرتیتر جداول
+COLOR_BACK_GROUND="#fff"            # رنگ بک گراند
+COLOR_TEXT="#222"                   # رنگ متن ها
+COLOR_LINK="#1a73e8"                # رنگ لینک ها
 MAIN_FONT = "12pt"                  # اندازه فونت پایه
 PAGE_COUNTER_COLOR="#666"           # رنگ شماره گذاری کتاب
 PAGE_COUNTER_FONT="10pt"            # اندازه فونت شماره گذاری
+```
+
+</div>
+
+### تم ها
+گزینه ها: custom (اگر میخواهید از رنگ های خودتون استفاده کنید)، dark ، light، colorful
+
+<div dir="ltr"> 
+
+```python
+THEME="custom"
+```
+
+</div>
+
+### سربرگ و پابرگ
+
+
++ نمایش عناوین فصل‌ها در بالای هر صفحه
++ اضافه کردن متن دلخواه در پایین صفحات
+
+<div dir="ltr"> 
+
+```python
+ENABLE_HEADER=False
+ENABLE_FOOTER=False
+FOOTER_TEXT="Footer Text"               # متن دلخواه
 ```
 
 </div>

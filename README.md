@@ -119,9 +119,31 @@ DIRECTION="rtl"                     # Direction (rtl Or ltr)
 COLOR_HEADER="#007BA7"              # Headers and titles color
 COLOR_CODE="#007BA7"                # Code block borders color
 COLOR_TABLE="#007BA7"               # Table headers color
+COLOR_BACK_GROUND="#fff"            # Background Color
+COLOR_TEXT="#222"                   # Texts Color
+COLOR_LINK="#1a73e8"                # Links Color
 MAIN_FONT="12pt"                    # Base font size
 PAGE_COUNTER_COLOR="#666"           # counter page color
 PAGE_COUNTER_FONT="10pt"            # counter page font size
+```
+
+### Themes
+Options: custom (uses COLOR_* variables), dark, light, colorful
+```python
+THEME="custom"
+```
+
+### Header & Footer
+
++ Header
+  + Display chapter titles at the top of each page
++ Footer
+  + Add custom text at the bottom of pages
+
+```python
+ENABLE_HEADER=False
+ENABLE_FOOTER=False
+FOOTER_TEXT="Footer Text"           # Custom footer text
 ```
 
 ### Paths
