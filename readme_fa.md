@@ -54,6 +54,8 @@ npm install
 project/
 ├── main.py                     # اسکریپت اصلی پایتون
 ├── package.json                # وابستگی های نود
+├── templates/                  # قالب
+    └── book_template.html      # قالب اصلی
 ├── assets/                     # فایل های کمکی
 │   ├── highlight.js            # هایلایتر پریسم
 │   ├── prism.css               # تم پریسم
@@ -85,7 +87,7 @@ project/
 <div dir="ltr"> 
 
 ```bash
-pip install markdown weasyprint beautifulsoup4 python-dotenv Jinja2
+pip install -r requirments.txt
 npm install
 ```
 

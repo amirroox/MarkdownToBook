@@ -40,6 +40,8 @@ npm install
 project/
 ├── main.py                      # Main Python script
 ├── package.json                 # Node.js dependencies
+├── templates/                   # Templates
+    └── book_template.html       # Template Book
 ├── assets/                      # Helper assets
 │   ├── highlight.js             # Prism highlighter
 │   ├── prism.css                # Prism CSS theme (optional)
@@ -66,7 +68,7 @@ project/
 
 1. **Install dependencies:**
    ```bash
-   pip install markdown weasyprint beautifulsoup4 python-dotenv Jinja2
+   pip install -r requirments.txt
    npm install
    ```
 
