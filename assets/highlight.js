@@ -46,7 +46,9 @@ function highlightCode(code, language) {
     }
 
     const grammar = Prism.languages[language] || Prism.languages.markup;
-    return Prism.highlight(code, grammar, language);
+    const highlighted = Prism.highlight(code, grammar, language);
+
+    return `<pre class="language-${language}"><code class="language-${language}">${highlighted}</code></pre>`;
 }
 
 const args = process.argv.slice(2);

@@ -223,18 +223,13 @@ def apply_prism_highlighting(HTML_content):
             if not language:
                 language = detect_language(code_text)
 
-            code["class"] = [f"language-{language}"]  # noqa
             highlighted = highlight_with_node(code_text, language)
 
             if highlighted:
-                code.clear()
-                code.append(BeautifulSoup(highlighted, "html.parser"))
+                highlighted_soup = BeautifulSoup(highlighted, "html.parser")
+                pre.replace_with(highlighted_soup)
                 if LOG_FLAG:
                     print(f"Highlighted with Node: {language}")
-
-            pre_classes = pre.get("class", [])  # noqa
-            if f"language-{language}" not in pre_classes:
-                pre["class"] = pre_classes + [f"language-{language}"]  # noqa
 
     return str(soup_1)
 
@@ -271,7 +266,7 @@ for i, md_path in enumerate(chapters):
         md_text = f.read()
 
     md_text = preprocess_markdown(md_text)
-    html_body = markdown.markdown(md_text, extensions=["fenced_code", "tables", "toc", "nl2br", "extra"])
+    html_body = markdown.markdown(md_text, extensions=["fenced_code", "tables", "nl2br", "extra", "sane_lists"])
     soup = BeautifulSoup(html_body, "html.parser")
     md_dir = os.path.dirname(os.path.abspath(md_path))
 
